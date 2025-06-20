@@ -1,21 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Chart from "./components/Chart";
+import StatusPanel from "./components/StatusPanel";
 
 export default function App() {
-  const [symbols, setSymbols] = useState([]);
-  const [selectedSymbol, setSelectedSymbol] = useState("");
-  const [isConnected, setIsConnected] = useState(false);
+  const selectedSymbol = "XAUUSD";
 
-  // Sembolleri yükle
-  useEffect(() => {
-    fetch("http://localhost:8000/symbols")
-      .then((response) => response.json())
-      .then((data) => setSymbols(data.symbols || []))
-      .catch((error) => {
-        console.error("Semboller yüklenemedi:", error);
-        setSymbols([]);
-      });
-  }, []);
+  // Burada isConnected state'i ve setIsConnected fonksiyonu tanımlanmalı
+  const [isConnected, setIsConnected] = useState(false);
 
   return (
     <div
@@ -26,34 +17,11 @@ export default function App() {
         color: "white",
       }}
     >
-      <h1>MT5 Grafik Örneği</h1>
+      <h1>MT5 XAUUSD RSI Bot</h1>
 
-      <div style={{ marginBottom: 20 }}>
-        <select
-          value={selectedSymbol}
-          onChange={(e) => setSelectedSymbol(e.target.value)}
-          style={{ padding: "8px", fontSize: "16px" }}
-        >
-          <option value="">Sembol Seçin</option>
-          {symbols.map((symbol) => (
-            <option key={symbol} value={symbol}>
-              {symbol}
-            </option>
-          ))}
-        </select>
+      <StatusPanel isConnected={isConnected} />
 
-        <span
-          style={{ marginLeft: 10, color: isConnected ? "limegreen" : "red" }}
-        >
-          {isConnected ? "Bağlı" : "Bağlı Değil"}
-        </span>
-      </div>
-
-      <Chart
-        selectedSymbol={selectedSymbol}
-        isConnected={isConnected}
-        setIsConnected={setIsConnected}
-      />
+      <Chart selectedSymbol={selectedSymbol} setIsConnected={setIsConnected} />
     </div>
   );
 }

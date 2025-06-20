@@ -12,7 +12,7 @@ export default function Chart({ selectedSymbol, isConnected, setIsConnected }) {
   const closePricesRef = useRef([]);
 
   // Basit RSI hesaplama fonksiyonu (14 periyot)
-  function calculateRSI(closes, period = 14) {
+  function calculateRSI(closes, period = 5) {
     if (closes.length < period + 1) return null;
 
     let gains = 0;
@@ -77,29 +77,25 @@ export default function Chart({ selectedSymbol, isConnected, setIsConnected }) {
 
     rsiSeriesRef.current = rsiSeries;
 
-    // RSI rehber çizgileri (70 ve 30)
-    const rsiGuideLine70 = chart.addSeries(LineSeries, {
+    const rsiGuideLine80 = chart.addSeries(LineSeries, {
       color: "#ff0000",
       lineWidth: 1,
       priceScaleId: "rsi",
     });
-
-    rsiGuideLine70.setData([
-      { time: Date.now() / 1000 - 60 * 60 * 24, value: 70 },
-      { time: Date.now() / 1000 + 60 * 60 * 24, value: 70 },
+    rsiGuideLine80.setData([
+      { time: Date.now() / 1000 - 60 * 60 * 24, value: 80 },
+      { time: Date.now() / 1000 + 60 * 60 * 24, value: 80 },
     ]);
 
-    const rsiGuideLine30 = chart.addSeries(LineSeries, {
+    const rsiGuideLine20 = chart.addSeries(LineSeries, {
       color: "#00ff00",
       lineWidth: 1,
       priceScaleId: "rsi",
     });
-
-    rsiGuideLine30.setData([
-      { time: Date.now() / 1000 - 60 * 60 * 24, value: 30 },
-      { time: Date.now() / 1000 + 60 * 60 * 24, value: 30 },
+    rsiGuideLine20.setData([
+      { time: Date.now() / 1000 - 60 * 60 * 24, value: 20 },
+      { time: Date.now() / 1000 + 60 * 60 * 24, value: 20 },
     ]);
-
     // RSI için ayrı ölçek oluştur
     chart.priceScale("rsi").applyOptions({
       scaleMargins: {
@@ -142,7 +138,7 @@ export default function Chart({ selectedSymbol, isConnected, setIsConnected }) {
 
         // RSI verisini ayrı çek
         fetch(
-          `http://localhost:8000/rsi/${selectedSymbol}?timeframe=M1&period=14`
+          `http://localhost:8000/rsi/${selectedSymbol}?timeframe=M1&period=5`
         )
           .then((res) => res.json())
           .then((rsiData) => {
@@ -178,6 +174,13 @@ export default function Chart({ selectedSymbol, isConnected, setIsConnected }) {
       console.log("Gelen veri:", event.data);
 
       const data = JSON.parse(event.data);
+      console.log(data);
+      const date = new Date(data.time * 1000);
+
+      // Saat:dakika:saniye formatı (örnek)
+      const timeStr = date.toLocaleTimeString();
+
+      console.log("Okunabilir saat:", timeStr);
       if (data.error) {
         console.error(data.error);
         return;
@@ -197,7 +200,7 @@ export default function Chart({ selectedSymbol, isConnected, setIsConnected }) {
         }
 
         // RSI hesapla
-        const rsiValue = calculateRSI(closePricesRef.current, 14);
+        const rsiValue = calculateRSI(closePricesRef.current, 5);
 
         // RSI verisi varsa güncelle
         if (rsiValue !== null && rsiSeriesRef.current) {
